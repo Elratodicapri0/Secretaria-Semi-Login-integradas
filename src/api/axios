@@ -1,0 +1,29 @@
+import axios from 'axios';
+
+const api = axios.create({
+  // CORREÇÃO 1: A URL base agora aponta para a sua API, não para o /admin.
+  baseURL: 'http://127.0.0.1:8000/api/',
+});
+
+// CORREÇÃO 2: Adicionamos um "interceptor" que anexa o token de autenticação
+// em todas as requisições para endpoints protegidos.
+api.interceptors.request.use(
+  (config) => {
+    // Pega o token do localStorage
+    const token = localStorage.getItem('accessToken');
+    
+    // Se o token existir, adiciona ao cabeçalho de autorização
+    if (token) {
+      // O cabeçalho é o 'passaporte' que prova que o usuário está logado.
+      config.headers['Authorization'] = `Bearer ${token}`;
+    }
+    
+    return config;
+  },
+  (error) => {
+    // Faz nada com o erro, apenas o repassa
+    return Promise.reject(error);
+  }
+);
+
+export default api;
